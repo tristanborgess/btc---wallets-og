@@ -30,7 +30,16 @@ const {
     getCommentsForPost,
     getComment,
     updateComment,
-    deleteComment
+    deleteComment,
+
+    //User handlers
+    signup,
+    signin,
+    signout,
+    getUserProfile,
+    updateUserProfile,
+    deleteUserProfile
+    
   } = require("./handlers");
 
 // CORS headers
@@ -67,11 +76,21 @@ commentRouter.get("/:commentId", getComment); // Retrieve a specific comment by 
 commentRouter.patch("/:commentId", updateComment); // Update a specific comment by its ID
 commentRouter.delete("/:commentId", deleteComment); // Delete a specific comment by its ID
 
+const userRouter = express.Router();
+// User routes
+userRouter.post("/signup", signup);
+userRouter.post("/signin", signin);
+userRouter.post("/signout", signout);
+userRouter.get("/profile", getUserProfile);
+userRouter.patch("/profile", updateUserProfile);
+userRouter.delete("/profile", deleteUserProfile);
 
 // Use the routers
 app.use("/wallets", walletRouter);
 app.use("/posts", postRouter);
+app.use("/users", userRouter);
 
+//For now
 app.get('/', (req, res) => {
     res.send('Hello, World!');
 });
