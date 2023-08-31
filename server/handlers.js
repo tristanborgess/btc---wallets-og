@@ -20,7 +20,7 @@ const getAllWallets = async (req, res) => {
         let result;
 
         if(category) {
-            result = await db.collection("wallets").find({ Category: category }).toArray();
+            result = await db.collection("wallets").find({ Category: new RegExp(`^${category}$`, 'i') }).toArray();
         } else {
             result = await db.collection("wallets").find().toArray();
         }
@@ -39,7 +39,7 @@ const getAllWallets = async (req, res) => {
 
 //Get single wallet
 const getWallet = async (req, res) => {
-    const { id, category } = req.params;
+    const { id } = req.params;
 
     try {
         client = new MongoClient(MONGO_URI);
@@ -63,20 +63,20 @@ const getWallet = async (req, res) => {
 
 //Add a single wallet
 const addWallet = async (req, res) => {
-    let newUUID = uuidv4(); 
-    const wallet = req.body.wallet;
+    let client;
+    const wallet = req.body.data;
     const category = req.params.category;
 
     //Check if category is valid
-    const validCategories = ["on-chain", "lightning", "hardware"];
+    const validCategories = ["On-chain", "Lightning", "Hardware"];
     if (!category || !validCategories.includes(category)) {
         return res.status(400).json({ status: 400, message: "Invalid or missing category label."})
     }
 
-    let newWallet = { _id: newUUID, category: category, ...wallet };
+    let newWallet = { category: category, ...wallet };
 
     try {
-        const client = new MongoClient(MONGO_URI);
+        client = new MongoClient(MONGO_URI);
         await client.connect();
         const dbName = "btc---wallets";
         const db = client.db(dbName);
@@ -105,10 +105,13 @@ const addWallet = async (req, res) => {
 //Update a wallet
 const updateWallet = async (req, res) => {
     const id = req.params.id;
+    let client;
 
     if(!id) {
         return res.status(400).json({ status: 400, message: "ID is required."})
     }
+
+    const walletId = new ObjectId(id);
 
     try {
         client = new MongoClient(MONGO_URI);
@@ -117,7 +120,7 @@ const updateWallet = async (req, res) => {
         const db = client.db(dbName);
 
         // Fetch the current wallet data (to merge with the new data if needed)
-        const currentWalletData = await db.collection('wallets').findOne({ _id: id });
+        const currentWalletData = await db.collection('wallets').findOne({ _id: walletId });
 
         if (!currentWalletData) {
             return res.status(404).json({ status: 404, message: 'Wallet not found' });
@@ -130,7 +133,7 @@ const updateWallet = async (req, res) => {
         };
 
         // Update the wallet in the database
-        const result = await db.collection('wallets').updateOne({ _id: id }, { $set: updatedWalletData });
+        const result = await db.collection('wallets').updateOne({ _id: walletId }, { $set: updatedWalletData });
 
         if (result.modifiedCount === 1) {
             res.status(200).json({ status: 200, data: updatedWalletData });
@@ -147,7 +150,7 @@ const updateWallet = async (req, res) => {
 //Update features of a specific wallet
 const updateWalletFeatures = async (req, res) => {
     const { id } = req.params;
-    const { features } = req.body;
+    const features = req.body.data ? req.body.data : {};
 
     if (!features || Object.keys(features).length === 0) {
         return res.status(400).json({ status: 400, message: "No features provided to update." });
@@ -164,8 +167,8 @@ const updateWalletFeatures = async (req, res) => {
 
         // Update the features for the specified wallet
         const result = await collection.updateOne(
-            { _id: id }, // filter
-            { $set: { features: features } }  // update the features
+            { _id: new ObjectId(id) }, // filter
+            { $set: features }  // update the features
         );
 
         if (result.matchedCount === 0) {
@@ -187,10 +190,12 @@ const updateWalletFeatures = async (req, res) => {
 
 //Delete a single wallet based on its id and its category
 const deleteWallet = async (req, res) => {
-    const { id } = req.params;
+    const id = new ObjectId(req.params.id);
+
+    let client;
 
     try {
-        const client = new MongoClient(MONGO_URI);
+        client = new MongoClient(MONGO_URI);
         await client.connect();
         const dbName = "btc---wallets";
         const db = client.db(dbName);
@@ -207,6 +212,8 @@ const deleteWallet = async (req, res) => {
         await client.close();
     } catch (err) {
         res.status(500).json({ status: 500, message: err.message });
+    } finally {
+        client.close();
     }
 };
 
