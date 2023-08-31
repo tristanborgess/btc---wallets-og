@@ -1,68 +1,67 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import Tabs from './Tabs';
 
 const Wallets = () => {
 const [wallets, setWallets] = useState([]);
-const features = ["Name", "Category", "Web App", "Desktop App", "Android", "iOS", /* ... other features ... */];
+const features = wallets.length > 0 ? Object.keys(wallets[0]).filter(feature => feature !== '_id' && feature !== 'Category') : [];
+const [activeCategory, setActiveCategory] = useState('On-chain');
+
 
 useEffect(() => {
-    // Fetch wallets from your backend
-    fetch('http://localhost:3000/wallets/on-chain')
-    .then(response => response.json())
-    .then(data => setWallets(data.data))
-    .catch(error => console.error('Error fetching wallets:', error));
-}, []);
+    fetch(`http://localhost:3000/wallets/${activeCategory}`)
+        .then(response => response.json())
+        .then(data => setWallets(data.data))
+        .catch(err => console.error(err));
+}, [activeCategory]);
 
+
+// Return: JSX
 return (
-    <Container>
-    <StyledTable>
-        <thead>
-        <tr>
-            {features.map(feature => (
-            <StyledTh key={feature}>
-                {feature}
-            </StyledTh>
-            ))}
-        </tr>
-        </thead>
-        <tbody>
-        {wallets.map(wallet => (
-            <tr key={wallet._id}>
-            {features.map(feature => {
-                const featureValue = wallet[feature];
-                return (
-                <StyledTd key={feature}>
-                    {typeof featureValue === 'object' ? JSON.stringify(featureValue) : featureValue}
-                </StyledTd>
-                );
-            })}
+        <>
+        <Tabs activeCategory={activeCategory} onCategoryChange={setActiveCategory} />
+        <StyledTable>
+            <thead>
+            <tr>
+                {features.map(feature => (
+                <StyledTableHeader key={feature}>{feature}</StyledTableHeader>
+                ))}
             </tr>
-        ))}
-        </tbody>
-    </StyledTable>
-    </Container>
-);
-}
+            </thead>
+            <tbody>
+            {wallets.map(wallet => (
+                <tr key={wallet._id}>
+                {features.map(feature => (
+                    <StyledTableCell key={feature}>
+                    {typeof wallet[feature] === "object" ? JSON.stringify(wallet[feature]) : wallet[feature]}
+                </StyledTableCell>
+                
+                ))}
+                </tr>
+            ))}
+            </tbody>
+        </StyledTable>
+        </>
+    );
+    }
 
-// Styled Components
-const Container = styled.div`
-padding: 2em;
-`;
+    const StyledTable = styled.table`
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    `;
 
-const StyledTable = styled.table`
-width: 100%;
-border-collapse: collapse;
-`;
+    const StyledTableCell = styled.td`
+    border: 1px solid black;
+    padding: 8px 12px;
+    text-align: left;
+    `;
 
-const StyledTh = styled.th`
-border: 1px solid #ddd;
-padding: 8px;
-text-align: left;
-`;
-
-const StyledTd = styled.td`
-border: 1px solid #ddd;
-padding: 8px;
-`;
+    const StyledTableHeader = styled.th`
+    border: 1px solid black;
+    padding: 8px 12px;
+    background-color: #f2f2f2;
+    text-align: left;
+    `;
 
 export default Wallets;
