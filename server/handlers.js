@@ -1,4 +1,4 @@
-const { MongoClient } = require("mongodb");
+const { MongoClient, ObjectId } = require("mongodb");
 require('dotenv').config();
 const { MONGO_URI } = process.env;
 
@@ -39,7 +39,7 @@ const getAllWallets = async (req, res) => {
 
 //Get single wallet
 const getWallet = async (req, res) => {
-    const { id } = req.params;
+    const { id, category } = req.params;
 
     try {
         client = new MongoClient(MONGO_URI);
@@ -47,7 +47,7 @@ const getWallet = async (req, res) => {
         const dbName = "btc---wallets";
         const db = client.db(dbName);
 
-        const wallet = await db.collection("wallets").findOne({ _id: id });
+        const wallet = await db.collection("wallets").findOne({ _id: new ObjectId(id) });
 
         if (!wallet) {
             res.status(404).json({ status: 404, message: "Wallet not found" });
