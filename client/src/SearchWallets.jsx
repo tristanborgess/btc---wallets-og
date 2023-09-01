@@ -52,8 +52,6 @@ const SearchWallets = ({ onSearch, activeCategory, wallets, hasSearched, onClear
     )
 }
 
-// Styling: Styled components
-
 const Container = styled.div`
     position: relative;
     width: fit-content;
@@ -106,7 +104,6 @@ const ClearButton = styled.button`
         background-color: darkred;
     }
 `;
-
 
 const Error = styled.p`
     color: red;

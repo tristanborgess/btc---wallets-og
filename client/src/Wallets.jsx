@@ -55,8 +55,6 @@ return (
                 wallets={wallets}
                 hasSearched={!displayAllWallets}
             />
-            <button onClick={() => console.log(searchedWallets)}>Log searchedWallets</button>
-
             <StyledTable>
                 <thead>
                     <tr>
