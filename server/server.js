@@ -9,6 +9,7 @@ const PORT = 3000;
 
 // CORS headers
     app.use((req, res, next) => {
+        res.header('Access-Control-Allow-Origin', '*');
         res.header(
             'Access-Control-Allow-Methods', 
             'OPTIONS, HEAD, GET, PUT, POST, DELETE'
