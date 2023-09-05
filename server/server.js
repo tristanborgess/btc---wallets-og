@@ -7,6 +7,12 @@ const app = express();
 const morgan = require('morgan');
 const PORT = 3000;
 
+//For Passport and Passwordless
+const passport = require('./passportConfig');
+const session = require('express-session');
+const bodyParser = require('body-parser');
+const sessionSecret = process.env.SESSION_SECRET;
+
 // CORS headers
     app.use((req, res, next) => {
         res.header('Access-Control-Allow-Origin', '*');
@@ -21,9 +27,22 @@ const PORT = 3000;
         next();
 });
 
+// Initialize session middleware
 app.use(express.json())
 app.use(morgan('tiny'))
 app.use(express.urlencoded({ extended: false }))
+app.use(bodyParser.json());
+
+app.use(session({
+    secret: sessionSecret,
+    resave: false,
+    saveUninitialized: false
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+
+
+
 
 const {
     // Wallet Handlers
@@ -48,9 +67,9 @@ const {
 
     // //User handlers
     // signup,
-    // signin,
-    // signout,
-    // getUserProfile,
+    signin,
+    signout,
+    getUserProfile,
     // updateUserProfile,
     // deleteUserProfile
     
@@ -65,6 +84,9 @@ walletRouter.patch("/:category/:id", updateWallet); // Update a specific wallet 
 walletRouter.delete("/:category/:id", deleteWallet); // Delete a specific wallet by its ID from a specified category
 walletRouter.patch("/:category/:id/features", updateWalletFeatures); // Update features of a specific wallet
 
+const authRoutes = require('./authRoutes'); 
+//Auth routes
+app.use('/auth', authRoutes);
 
 // const postRouter = express.Router();
 // // Post Routes
@@ -74,7 +96,6 @@ walletRouter.patch("/:category/:id/features", updateWalletFeatures); // Update f
 // postRouter.patch("/:id", updatePost); // Update a specific post by its ID
 // postRouter.delete("/:id", deletePost); // Delete a specific post by its ID
 
-
 // const commentRouter = express.Router();
 // // Comment Routes
 // commentRouter.post("/", addCommentToPost); // Add a comment to a specific post
@@ -83,20 +104,35 @@ walletRouter.patch("/:category/:id/features", updateWalletFeatures); // Update f
 // commentRouter.patch("/:commentId", updateComment); // Update a specific comment by its ID
 // commentRouter.delete("/:commentId", deleteComment); // Delete a specific comment by its ID
 
-// const userRouter = express.Router();
+const userRouter = express.Router();
 // // User routes
-// userRouter.post("/signup", signup);
-// userRouter.post("/signin", signin);
+userRouter.post("/signup", signup);
+userRouter.post("/signin", signin);
 // userRouter.post("/signout", signout);
-// userRouter.get("/profile", getUserProfile);
-// userRouter.patch("/profile", updateUserProfile);
-// userRouter.delete("/profile", deleteUserProfile);
+userRouter.get("/profile", getUserProfile);
+userRouter.patch("/profile/:userId", updateUserProfile);
+userRouter.delete("/profile/:userId", deleteUserProfile);
 
 // Use the routers
 app.use("/wallets", walletRouter);
 // app.use("/posts", postRouter);
-// app.use("/users", userRouter);
+app.use("/users", userRouter);
 // app.use("/comments",commentRouter);
+
+// for sending emails
+const maildev = require('maildev'); 
+
+passwordless.addDelivery(
+    function(tokenToSend, uidToSend, recipient, callback) {
+        
+        const host = 'http://localhost:3000';
+        const tokenLink = `${host}/auth/token?token=${tokenToSend}&uid=${encodeURIComponent(uidToSend)}`;
+        
+        console.log('Send this link to user:', tokenLink);
+
+        callback();
+    }
+);
 
 //For now
 app.get('/', (req, res) => {
