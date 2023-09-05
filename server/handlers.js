@@ -1,9 +1,7 @@
 const { MongoClient, ObjectId } = require("mongodb");
 require('dotenv').config();
 const { MONGO_URI } = process.env;
-
-
-const { v4: uuidv4 } = require("uuid");
+const User = require('./userHandlers');
 
 //Wallet handlers
 //For all the wallets
@@ -217,11 +215,95 @@ const deleteWallet = async (req, res) => {
     }
 };
 
+//User handlers
+const signin = async (req, res) => {
+    const { email } = req.body;
+    const user = await User.findUserByEmail(email);
+    if (!user) {
+        return res.status(404).json({ message: "User not found." });
+    }
+    passwordless.requestToken(async (userEmail, delivery, callback) => {
+        const user = await User.findUserByEmail(userEmail);
+        if (!user) return callback(null, null);
+        const token = Math.floor(Math.random() * 1000000);  // Generate a 6-digit number
+        await User.updateUserToken(userEmail, token);  // Store the token in the user's record
+        callback(null, user._id.toString());  // The user ID is stored in the session for retrieval during authentication
+    })(req, res);
+};
+
+const signout = async (req, res) => {
+    // Using Passport for passwordless authentication, this will handle the logout logic
+    req.logout();
+    res.redirect('/');  // Redirect to home page after logout
+};
+
+const updateUserProfile = async (req, res) => {
+    const { userId } = req.params;
+    const { username } = req.body;
+
+    if (!username) {
+        return res.status(400).json({ status: 400, message: "Username is required." });
+    }
+
+    try {
+        const isUpdated = await User.updateUserUsername(userId, username);
+        if (!isUpdated) {
+            return res.status(404).json({ status: 404, message: 'Failed to update username or user not found' });
+        }
+
+        res.status(200).json({ status: 200, message: "Username updated successfully." });
+    } catch (err) {
+        res.status(500).json({ status: 500, message: err.message });
+    }
+};
+
+const getUserProfile = async (req, res) => {
+    if (!req.user || !req.user.id) {
+        return res.status(401).json({ message: "User not authenticated." });
+    }
+    const userId = req.user.id;
+    const client = new MongoClient(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+    await client.connect();
+    const dbName = "btc---wallets";
+    const db = client.db(dbName);
+    const user = await db.collection("users").findOne({ _id: new ObjectId(userId) });
+    if (!user) {
+        res.status(404).json({ message: "User not found." });
+    } else {
+        res.status(200).json(user);
+    }
+    client.close();
+};
+
+const deleteUserProfile = async (req, res) => {
+    const { userId } = req.params;
+
+    let client;
+
+    try {
+        client = new MongoClient(MONGO_URI);
+        await client.connect();
+        const dbName = "btc---wallets";
+        const db = client.db(dbName);
+
+        const deleteResult = await db.collection('users').deleteOne({ _id: new ObjectId(userId) });
+
+        if (deleteResult.deletedCount === 0) {
+            return res.status(404).json({ status: 404, message: 'User not found' });
+        }
+
+        res.status(200).json({ status: 200, message: "User deleted successfully" });
+
+    } catch (err) {
+        res.status(500).json({ status: 500, message: err.message });
+    } finally {
+        client.close();
+    }
+};
+
 //Post Handlers
 
 //Comment handlers
-
-//User handlers
 
 module.exports = {
     getAllWallets,
@@ -229,5 +311,10 @@ module.exports = {
     addWallet,
     updateWallet,
     updateWalletFeatures,
-    deleteWallet
+    deleteWallet,
+    signin,
+    signout,
+    getUserProfile,
+    updateUserProfile,
+    deleteUserProfile
 };
