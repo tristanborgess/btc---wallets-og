@@ -7,6 +7,10 @@ const app = express();
 const morgan = require('morgan');
 const PORT = 3000;
 
+const session = require('express-session');
+const MongoStore = require('connect-mongo');
+const sessionSecret = process.env.SESSION_SECRET;
+
 // CORS headers
     app.use((req, res, next) => {
         res.header('Access-Control-Allow-Origin', '*');
@@ -25,11 +29,12 @@ const PORT = 3000;
 app.use(express.json());
 app.use(morgan('tiny'));
 app.use(express.urlencoded({ extended: false }));
-// app.use(session({
-//     secret: sessionSecret,
-//     resave: false,
-//     saveUninitialized: false
-// }));
+app.use(session({
+    secret: sessionSecret,
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({ mongoUrl: process.env.MONGO_URI })
+}));
 
 const {
     // Wallet Handlers
@@ -44,13 +49,12 @@ const {
 const {
     findUserByEmail,
     addUser,
-    deleteUserProfile,
     updateUsername,
-    signin,           
-    signup,           
-    signout,          
-    getUserProfile,   
-    updateUserProfile
+    deleteUserProfile,
+    signin,
+    signup,
+    signout,
+    getUserProfile,
 } = require("./userHandlers");
 
 const walletRouter = express.Router();
@@ -68,7 +72,7 @@ userRouter.post("/signup", signup);
 userRouter.post("/signin", signin);
 userRouter.post("/signout", signout);
 userRouter.get("/profile", getUserProfile);
-userRouter.patch("/profile/:userId", updateUserProfile);
+userRouter.patch("/profile/:userId", updateUsername);
 userRouter.delete("/profile/:userId", deleteUserProfile);
 
 // Use the routers
@@ -126,8 +130,6 @@ app.listen(PORT, () => {
 // );
 
 // require('./passportConfig');
-// const sessionSecret = process.env.SESSION_SECRET;
-
 
     // // Post & Comment Handlers
     // addPost,
