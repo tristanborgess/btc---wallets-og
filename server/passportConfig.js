@@ -1,14 +1,17 @@
-// const passport = require('passport');
-const passwordless = require('passport-passwordless');
+const Passport = require('passport');
+const passwordless = require('passwordless');
 const User = require('./userHandlers');
+// const passport = require('passport').Strategy;
+const PasswordlessStrategy = require('passport-passwordless').Strategy;
+const MongoStore = require('passwordless-mongostore-bcrypt-node');
 
-const passport = require('passport').Strategy;
+const MONGO_URI = process.env.MONGO_URI;
 
-const PasswordlessStrategy = passwordless.Strategy;
+passwordless.init(new MongoStore(process.env.MONGO_URI));
 
 console.log(passwordless);
 
-passport.use(new passwordless.Strategy(
+Passport.use(new PasswordlessStrategy(
     function(token, done) {
         User.findUserByToken(token)
             .then(user => {
@@ -21,15 +24,15 @@ passport.use(new passwordless.Strategy(
     }
 ));
 
-passport.serializeUser(function(user, done) {
+Passport.serializeUser(function(user, done) {
     done(null, user._id.toString());
 });
 
-passport.deserializeUser(function(id, done) {
+Passport.deserializeUser(function(id, done) {
     User.findUserById(id)
         .then(user => done(null, user))
         .catch(err => done(err, false));
 });
 
-module.exports = passport;
+module.exports = Passport;
 
