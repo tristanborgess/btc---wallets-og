@@ -16,7 +16,7 @@ const Tabs = ({ activeCategory, onCategoryChange }) => {
     };
 
 return (
-  <DropdownContainer>
+<DropdownContainer>
     <Select
         value={options.find(option => option.value === activeCategory)}
         onChange={handleChange}
@@ -24,7 +24,7 @@ return (
         className="basic-single"
         classNamePrefix="select"
     />
-  </DropdownContainer>
+</DropdownContainer>
 );
 };
 
