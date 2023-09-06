@@ -1,7 +1,6 @@
 const { MongoClient, ObjectId } = require("mongodb");
 require('dotenv').config();
 const { MONGO_URI } = process.env;
-const User = require('./userHandlers');
 
 //Wallet handlers
 //For all the wallets

@@ -7,10 +7,8 @@ const app = express();
 const morgan = require('morgan');
 const PORT = 3000;
 
-//For Passport and Passwordless
-const passport = require('./passportConfig');
 const session = require('express-session');
-const bodyParser = require('body-parser');
+const MongoStore = require('connect-mongo');
 const sessionSecret = process.env.SESSION_SECRET;
 
 // CORS headers
@@ -18,7 +16,7 @@ const sessionSecret = process.env.SESSION_SECRET;
         res.header('Access-Control-Allow-Origin', '*');
         res.header(
             'Access-Control-Allow-Methods', 
-            'OPTIONS, HEAD, GET, PUT, POST, DELETE'
+            'OPTIONS, HEAD, GET, PUT, POST, DELETE, PATCH'
         );
         res.header(
             'Access-Control-Allow-Headers', 
@@ -28,21 +26,15 @@ const sessionSecret = process.env.SESSION_SECRET;
 });
 
 // Initialize session middleware
-app.use(express.json())
-app.use(morgan('tiny'))
-app.use(express.urlencoded({ extended: false }))
-app.use(bodyParser.json());
-
+app.use(express.json());
+app.use(morgan('tiny'));
+app.use(express.urlencoded({ extended: false }));
 app.use(session({
     secret: sessionSecret,
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: false,
+    store: MongoStore.create({ mongoUrl: process.env.MONGO_URI })
 }));
-app.use(passport.initialize());
-app.use(passport.session());
-
-
-
 
 const {
     // Wallet Handlers
@@ -52,6 +44,90 @@ const {
     updateWallet,
     deleteWallet,
     updateWalletFeatures,
+} = require("./handlers");
+
+const {
+    updateUsername,
+    deleteUserProfile,
+    signin,
+    signup,
+    signout,
+    getUserProfile,
+} = require("./userHandlers");
+
+const walletRouter = express.Router();
+// Wallet Routes
+walletRouter.post("/:category", addWallet); // Add a new wallet to a specified category
+walletRouter.get("/:category", getAllWallets); // Retrieve all wallets of a specified category
+walletRouter.get("/:category/:id", getWallet); // Retrieve a specific wallet by its ID from a specified category
+walletRouter.patch("/:category/:id", updateWallet); // Update a specific wallet by its ID from a specified category
+walletRouter.delete("/:category/:id", deleteWallet); // Delete a specific wallet by its ID from a specified category
+walletRouter.patch("/:category/:id/features", updateWalletFeatures); // Update features of a specific wallet
+
+const userRouter = express.Router();
+// // User routes
+userRouter.post("/signup", signup);
+userRouter.post("/signin", signin);
+userRouter.post("/signout", signout);
+userRouter.get("/profile", getUserProfile);
+userRouter.patch("/profile/:userId", updateUsername);
+userRouter.delete("/profile/:userId", deleteUserProfile);
+
+// Use the routers
+app.use("/wallets", walletRouter);
+app.use("/users", userRouter);
+// app.use("/comments",commentRouter);
+// app.use("/posts", postRouter);
+
+//For now
+app.get('/', (req, res) => {
+    res.send('Hello, World!');
+});
+
+app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+});
+
+// app.use(bodyParser.json());
+// app.use(passport.initialize());
+// app.use(passport.session());
+
+// //For Passport and Passwordless
+// const passport = require('passport');
+// const session = require('express-session');
+// const bodyParser = require('body-parser');
+// const passwordless = require('passwordless');
+// const MongoStore = require('passwordless-mongostore-bcrypt-node');
+// const email = require("emailjs");
+
+// //Email Configuration
+// const smtpServer = email.server.connect({
+//     user:    process.env.SMTP_USER,
+//     password: process.env.SMTP_PASSWORD,
+//     host:    process.env.SMTP_HOST,
+//     ssl:     true
+// });
+
+//  // Initialize Passwordless with MongoDB store
+// passwordless.init(new MongoStore(process.env.MONGO_URI));
+// passwordless.addDelivery(
+//     function(tokenToSend, uidToSend, recipient, callback) {
+//         smtpServer.send({
+//             text:    'Hello!\nAccess your account here: http://localhost:3000/auth/verify?token=' 
+//                     + tokenToSend + '&uid=' + encodeURIComponent(uidToSend), 
+//             from:    process.env.SMTP_USER,
+//             to:      recipient,
+//             subject: 'Token for ' + 'http://localhost:3000'
+//         }, function(err, message) { 
+//             if(err) {
+//                 console.log(err);
+//             }
+//             callback(err);
+//         });
+//     }
+// );
+
+// require('./passportConfig');
 
     // // Post & Comment Handlers
     // addPost,
@@ -65,28 +141,9 @@ const {
     // updateComment,
     // deleteComment,
 
-    // //User handlers
-    // signup,
-    signin,
-    signout,
-    getUserProfile,
-    // updateUserProfile,
-    // deleteUserProfile
-    
-} = require("./handlers");
-
-const walletRouter = express.Router();
-// Wallet Routes
-walletRouter.post("/:category", addWallet); // Add a new wallet to a specified category
-walletRouter.get("/:category", getAllWallets); // Retrieve all wallets of a specified category
-walletRouter.get("/:category/:id", getWallet); // Retrieve a specific wallet by its ID from a specified category
-walletRouter.patch("/:category/:id", updateWallet); // Update a specific wallet by its ID from a specified category
-walletRouter.delete("/:category/:id", deleteWallet); // Delete a specific wallet by its ID from a specified category
-walletRouter.patch("/:category/:id/features", updateWalletFeatures); // Update features of a specific wallet
-
-const authRoutes = require('./authRoutes'); 
-//Auth routes
-app.use('/auth', authRoutes);
+    // const authRoutes = require('./authRoutes'); 
+// //Auth routes
+// app.use('/auth', authRoutes);
 
 // const postRouter = express.Router();
 // // Post Routes
@@ -103,43 +160,4 @@ app.use('/auth', authRoutes);
 // commentRouter.get("/:commentId", getComment); // Retrieve a specific comment by its ID
 // commentRouter.patch("/:commentId", updateComment); // Update a specific comment by its ID
 // commentRouter.delete("/:commentId", deleteComment); // Delete a specific comment by its ID
-
-const userRouter = express.Router();
-// // User routes
-userRouter.post("/signup", signup);
-userRouter.post("/signin", signin);
-// userRouter.post("/signout", signout);
-userRouter.get("/profile", getUserProfile);
-userRouter.patch("/profile/:userId", updateUserProfile);
-userRouter.delete("/profile/:userId", deleteUserProfile);
-
-// Use the routers
-app.use("/wallets", walletRouter);
-// app.use("/posts", postRouter);
-app.use("/users", userRouter);
-// app.use("/comments",commentRouter);
-
-// for sending emails
-const maildev = require('maildev'); 
-
-passwordless.addDelivery(
-    function(tokenToSend, uidToSend, recipient, callback) {
-        
-        const host = 'http://localhost:3000';
-        const tokenLink = `${host}/auth/token?token=${tokenToSend}&uid=${encodeURIComponent(uidToSend)}`;
-        
-        console.log('Send this link to user:', tokenLink);
-
-        callback();
-    }
-);
-
-//For now
-app.get('/', (req, res) => {
-    res.send('Hello, World!');
-});
-
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-});
 
