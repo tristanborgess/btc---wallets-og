@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
 
 function Signup() {
     const [email, setEmail] = useState('');
@@ -31,12 +32,11 @@ function Signup() {
     };
 
     return (
-        <div>
-            <h2>Signup</h2>
-            <form onSubmit={handleSubmit}>
+        <Container>
+            <Title>Signup</Title>
+            <Form onSubmit={handleSubmit}>
                 <div>
-                    <label>Email:</label>
-                    <input 
+                    <Input 
                         type="email" 
                         placeholder="Email" 
                         value={email}
@@ -44,8 +44,7 @@ function Signup() {
                     />
                 </div>
                 <div>
-                    <label>Username:</label>
-                    <input 
+                    <Input 
                         type="text" 
                         placeholder="Username" 
                         value={username}
@@ -53,10 +52,35 @@ function Signup() {
                     />
                 </div>
                 <button type="submit">Signup</button>
-            </form>
+            </Form>
             {message && <p>{message}</p>}
-        </div>
+        </Container>
     );
 }
+
+const Container = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 20vw;
+    gap: 20px;
+`
+
+const Title = styled.h2`
+    font-size: 25px;
+`
+
+const Form = styled.form`
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+`
+
+const Input = styled.input`
+    font-family: 'VT323';
+    width: 15vw;
+    height: 1.5vw;
+`
 
 export default Signup;

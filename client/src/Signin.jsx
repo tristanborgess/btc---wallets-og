@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useUser } from './UserContext';
 import { Link, useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
 
 function Signin() {
     const { setUser } = useUser();
@@ -33,21 +34,46 @@ function Signin() {
     };
 
     return (
-        <div>
-            <h2>Signin</h2>
-            <form onSubmit={handleSubmit}>
-                <input 
+        <Container>
+            <Title>Signin</Title>
+            <Form onSubmit={handleSubmit}>
+                <Input 
                     type="email" 
                     placeholder="Email" 
                     value={email}
                     onChange={e => setEmail(e.target.value)} 
                 />
                 <button type="submit">Signin</button>
-            </form>
+            </Form>
             {message && <p>{message}</p>}
             <Link to="/signup">Don't have an account? Create one.</Link>
-        </div>
+        </Container>
     );
 }
+
+const Container = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 20vw;
+    gap: 20px;
+`
+
+const Title = styled.h2`
+    font-size: 25px;
+`
+
+const Form = styled.form`
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+`
+
+const Input = styled.input`
+    font-family: 'VT323';
+    width: 15vw;
+    height: 1.5vw;
+`
 
 export default Signin;

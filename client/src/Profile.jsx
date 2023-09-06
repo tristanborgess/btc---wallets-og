@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useUser } from './UserContext';
+import styled from 'styled-components';
 
 function Profile() {
     const { user, setUser } = useUser();
@@ -55,11 +56,12 @@ function Profile() {
     };
 
     return (
-        <div>
-            <h2>Profile</h2>
+        <Container>
+            <Title>Profile</Title>
             <p>Email: {user && user.email}</p>
             <p>Username: {user && user.username}</p>
-            <input 
+            <Form>
+            <Input 
                 type="text" 
                 value={username} 
                 onChange={e => setUsername(e.target.value)} 
@@ -67,8 +69,34 @@ function Profile() {
             <button onClick={handleUsernameUpdate}>Update Username</button>
             <button onClick={handleDeleteProfile}>Delete Profile</button>
             {message && <p>{message}</p>}
-        </div>
+            </Form>
+        </Container>
     );
 }
+
+const Container = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 20vw;
+    gap: 20px;
+`
+
+const Title = styled.h2`
+    font-size: 25px;
+`
+
+const Form = styled.form`
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+`
+
+const Input = styled.input`
+    font-family: 'VT323';
+    width: 15vw;
+    height: 1.5vw;
+`
 
 export default Profile;
