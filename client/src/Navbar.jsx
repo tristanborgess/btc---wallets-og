@@ -1,8 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import styled from 'styled-components';
+import UserContext, { useUser } from './UserContext';
+import { Link } from 'react-router-dom';
 
-const Navbar = ({ isSignedIn, handleSignOut, handleSignIn }) => {
+const Navbar = () => {
     const [blockHeight, setBlockHeight] = useState(null);
+    const { user, setUser } = useContext(UserContext);
+
+    const handleSignout = () => {
+        setUser(null);
+    };
 
     useEffect(() => {
         // Fetch the current Bitcoin block height
@@ -14,12 +21,17 @@ const Navbar = ({ isSignedIn, handleSignOut, handleSignIn }) => {
 
     return (
         <NavContainer>
-            <Title>btc---wallets</Title>
+            <Link to="/">btc---wallets</Link>
             <div>
                 <IconPlaceholder /> Block: {blockHeight}
-                <ProfileIcon onClick={isSignedIn ? handleSignOut : handleSignIn}>
-                    {isSignedIn ? 'Sign out' : 'Sign in'}
-                </ProfileIcon>
+                {!user ? (
+                <Link to="/signin">Sign In</Link>
+            ) : (
+                <>
+                    <Link to="/profile">Profile</Link>
+                    <button onClick={handleSignout}>Sign Out</button>
+                </>
+            )}
             </div>
         </NavContainer>
     );
