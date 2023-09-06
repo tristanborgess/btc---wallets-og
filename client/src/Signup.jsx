@@ -19,7 +19,7 @@ function Signup() {
                 body: JSON.stringify({ email, username }),
             });
             const data = await response.json();
-            if (data.status === 201) {
+            if (response.status === 201) {
                 setMessage('Successfully signed up!');
                 setUser(data.data); 
                 navigate('/'); 
