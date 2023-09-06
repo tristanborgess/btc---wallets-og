@@ -16,7 +16,7 @@ const sessionSecret = process.env.SESSION_SECRET;
         res.header('Access-Control-Allow-Origin', '*');
         res.header(
             'Access-Control-Allow-Methods', 
-            'OPTIONS, HEAD, GET, PUT, POST, DELETE'
+            'OPTIONS, HEAD, GET, PUT, POST, DELETE, PATCH'
         );
         res.header(
             'Access-Control-Allow-Headers', 
@@ -47,8 +47,6 @@ const {
 } = require("./handlers");
 
 const {
-    findUserByEmail,
-    addUser,
     updateUsername,
     deleteUserProfile,
     signin,

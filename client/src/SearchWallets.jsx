@@ -9,7 +9,9 @@ const SearchWallets = ({ onSearch, activeCategory, wallets, hasSearched, onClear
     const handleSearchInput = (e) => {
         setSearchWallet(e.target.value);
         if (e.target.value.length > 1) {
-            const filteredSuggestions = wallets.filter(wallet => wallet.Name.toLowerCase().includes(e.target.value.toLowerCase()));
+            const filteredSuggestions = wallets.filter(wallet => 
+                wallet && wallet.Name && wallet.Name.toLowerCase().includes(e.target.value.toLowerCase())
+            );
             setSuggestions(filteredSuggestions);
         } else {
             setSuggestions([]);
