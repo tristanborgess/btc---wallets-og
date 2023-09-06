@@ -1,4 +1,4 @@
-// import { createGlobalStyle } from "styled-components";
+import { createGlobalStyle } from "styled-components";
 
 const GlobalStyles = createGlobalStyle`
     html, body, div, span, applet, object, iframe,
@@ -31,7 +31,7 @@ const GlobalStyles = createGlobalStyle`
     }
     body {
         line-height: 1;
-        font-family: sans-serif;
+        font-family: "VT323";
         min-height: 100vh;
         max-width: 100vw;
     }

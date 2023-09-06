@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import styled from 'styled-components';
 import UserContext, { useUser } from './UserContext';
 import { Link } from 'react-router-dom';
+import blockIcon from './assets/block-01.svg';
 
 const Navbar = () => {
     const [blockHeight, setBlockHeight] = useState(null);
@@ -21,9 +22,11 @@ const Navbar = () => {
 
     return (
         <NavContainer>
-            <Link to="/">btc---wallets</Link>
-            <div>
-                <IconPlaceholder /> Block: {blockHeight}
+            <StyledLink to="/">btc---wallets</StyledLink>
+            <BlockContainer>
+                <Icon src={blockIcon} alt="Block Icon"/> Block: {blockHeight}
+            </BlockContainer>
+            <LinkContainer>
                 {!user ? (
                 <Link to="/signin">Sign In</Link>
             ) : (
@@ -32,7 +35,7 @@ const Navbar = () => {
                     <button onClick={handleSignout}>Sign Out</button>
                 </>
             )}
-            </div>
+            </LinkContainer>
         </NavContainer>
     );
 };
@@ -43,16 +46,25 @@ const NavContainer = styled.div`
     padding: 10px 20px;
     background-color: #333;
     color: #fff;
+    align-items: center;
 `;
 
-const Title = styled.h1`
-    font-size: 24px;
+const StyledLink = styled(Link)`
+    text-decoration: none;      
+    color: #fff;                
+    font-size: 32px;            
+    font-weight: bold;         
+    letter-spacing: 1px;        
+    text-transform: uppercase;
 `;
 
-const IconPlaceholder = styled.span`
+const BlockContainer = styled.div`
+    display: flex;
+    align-items: center;
+`
+const Icon = styled.img`
     padding: 10px;
-    background-color: #555;
-    margin-right: 10px;
+    width: 3vw;
 `;
 
 const ProfileIcon = styled.button`
@@ -61,5 +73,17 @@ const ProfileIcon = styled.button`
     color: #fff;
     cursor: pointer;
 `;
+
+const LinkContainer = styled(Link)`
+    text-decoration: none;      
+    color: #fff;                
+    font-size: 15px;            
+    font-weight: bold;         
+    letter-spacing: 1px;        
+    text-transform: uppercase;
+    &:visited {  
+        color: #fff;
+    }
+`
 
 export default Navbar;

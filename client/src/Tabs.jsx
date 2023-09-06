@@ -1,48 +1,36 @@
 import React from 'react';
 import styled from 'styled-components';
+import Select from 'react-select';
 
 const Tabs = ({ activeCategory, onCategoryChange }) => {
+    const options = [
+        { value: 'On-chain', label: 'On-chain' },
+        { value: 'Lightning', label: 'Lightning' },
+        { value: 'Hardware', label: 'Hardware' }
+    ];
+
+    const handleChange = (selectedOption) => {
+        if (selectedOption) {
+            onCategoryChange(selectedOption.value);
+        }
+    };
 
 return (
-<TabContainer>
-    <TabButton 
-    selected={activeCategory === 'On-chain'} 
-    onClick={() => onCategoryChange('On-chain')}
-    >
-    On-chain
-    </TabButton>
-    <TabButton 
-    selected={activeCategory === 'Lightning'} 
-    onClick={() => onCategoryChange('Lightning')}
-    >
-    Lightning
-    </TabButton>
-    <TabButton 
-    selected={activeCategory === 'Hardware'} 
-    onClick={() => onCategoryChange('Hardware')}
-    >
-    Hardware
-    </TabButton>
-</TabContainer>
+  <DropdownContainer>
+    <Select
+        value={options.find(option => option.value === activeCategory)}
+        onChange={handleChange}
+        options={options}
+        className="basic-single"
+        classNamePrefix="select"
+    />
+  </DropdownContainer>
 );
 };
 
-const TabContainer = styled.div`
+const DropdownContainer = styled.div`
 display: flex;
 margin-bottom: 20px;
-`;
-
-const TabButton = styled.button`
-padding: 10px 20px;
-cursor: pointer;
-background-color: ${({ selected }) => (selected ? '#ccc' : 'transparent')};
-border: none;
-margin-right: 10px;
-transition: background-color 0.2s;
-
-&:hover {
-background-color: #f2f2f2;
-}
 `;
 
 export default Tabs;

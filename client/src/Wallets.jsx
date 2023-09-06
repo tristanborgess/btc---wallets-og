@@ -57,7 +57,8 @@ useEffect(() => {
 
 return (
         <>
-            <Tabs 
+        <FilterContainer>
+        <Tabs 
                 activeCategory={activeCategory} 
                 onCategoryChange={setActiveCategory} 
             />
@@ -69,6 +70,7 @@ return (
                 hasSearched={!displayAllWallets}
             />
             <WalletFilter columns={features} shownColumns={shownColumns} onColumnToggle={handleColumnToggle} />
+        </FilterContainer>
             {loading ? (
                 <LoadingMessage>Loading wallets...</LoadingMessage>
             ) : (
@@ -98,19 +100,23 @@ return (
 }
 
     const StyledTable = styled.table`
-    width: 100%;
-    border-collapse: collapse;
+    width: 90vw;
+    border-collapse: separate ;
+    align-items: center;
     margin-top: 20px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 20px;
     `;
 
     const StyledTableCell = styled.td`
-    border: 1px solid black;
+    /* border: 1px solid black; */
     padding: 8px 12px;
     text-align: left;
     `;
 
     const StyledTableHeader = styled.th`
-    border: 1px solid black;
+    /* border: 1px solid black; */
     padding: 8px 12px;
     background-color: #f2f2f2;
     text-align: left;
@@ -121,6 +127,12 @@ return (
     padding: 20px;
     font-size: 20px;
     font-weight: bold;
+    `;
+
+    const FilterContainer = styled.div`
+        display: flex;
+        align-items: baseline;
+        justify-content: center;
     `;
 
 export default Wallets;

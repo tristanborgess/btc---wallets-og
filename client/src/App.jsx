@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Route, BrowserRouter, Routes } from 'react-router-dom';
-// import GlobalStyles from './GlobalStyles';
+import GlobalStyles from './GlobalStyles';
 import Navbar from './Navbar';
 import Wallets from './Wallets';
 import Footer from './Footer';
@@ -15,7 +15,7 @@ function App() {
   return (
     <UserProvider>
       <BrowserRouter>
-      {/* <GlobalStyles /> */}
+      <GlobalStyles />
         <Navbar />
         <Routes>
           <Route path='/' element={<Wallets />} />

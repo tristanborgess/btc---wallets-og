@@ -15,10 +15,6 @@ const WalletFilter = ({ columns, shownColumns, onColumnToggle }) => {
         onColumnToggle(newShownColumns);
     };
 
-    const handleClear = () => {
-        onColumnToggle(['Name']);
-    };
-
     return (
         <DropdownContainer>
             <Select
@@ -30,7 +26,6 @@ const WalletFilter = ({ columns, shownColumns, onColumnToggle }) => {
                 className="basic-multi-select"
                 classNamePrefix="select"
             />
-            <ClearButton onClick={handleClear}>Clear</ClearButton>
         </DropdownContainer>
     );
 }
@@ -41,18 +36,6 @@ const DropdownContainer = styled.div`
     display: flex;
     align-items: center;
     gap: 1rem;
-`;
-
-const ClearButton = styled.button`
-    padding: 0.5rem 1rem;
-    border: none;
-    border-radius: 4px;
-    background-color: #d32f2f;
-    color: #ffffff;
-    cursor: pointer;
-    &:hover {
-        background-color: #c12727;
-    }
 `;
 
 export default WalletFilter;
