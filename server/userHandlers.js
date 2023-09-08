@@ -121,7 +121,7 @@ const signup = async (req, res) => {
         const result = await db.collection("users").insertOne({ email, username });
 
         if (result.acknowledged) {
-            res.status(201).json({ status: 201, data: { email, username }, message: "User successfully added!" });
+            res.status(200).json({ status: 200, data: { email, username }, message: "User successfully added!" });
         } else {
             throw new Error("User registration failed.");
         }

@@ -25,9 +25,12 @@ function Signup() {
                 navigate('/'); 
             } else {
                 setMessage(data.message || 'Error signing up.');
+                
             }
         } catch (error) {
+            console.error("Signup error:", error);
             setMessage('Error signing up.');
+            console.log(error.message)
         }
     };
 
